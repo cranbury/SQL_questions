@@ -221,6 +221,19 @@ class Reply
     results.map { |result| Reply.new(result) }
   end
 
+  def author
+    result = QuestionDatabase.instance.execute(<<-SQL, self.id)
+      SELECT
+        user_id
+      FROM
+        replies
+      WHERE
+        replies.id = ?
+    SQL
+
+    User.find_by_id(result.first["user_id"])
+  end
+
 end
 
 class QuestionLike
