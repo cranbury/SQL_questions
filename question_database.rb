@@ -164,6 +164,21 @@ class QuestionFollower
   def initialize(options = {})
     @id, @user_id, @question_id = options.values_at("id", "user_id", "question_id")
   end
+
+  def self.followers_for_question(question_id = self.question_id)
+    results = QuestionDatabase.instance.execute(<<-SQL, question_id)
+      SELECT
+        users.id AS id, fname, lname
+      FROM
+        question_followers
+        JOIN users ON question_followers.user_id = users.id
+      WHERE
+        question_id = ?
+    SQL
+
+    results.map { |result| User.new(result) }
+  end
+
 end
 
 class Reply
@@ -294,4 +309,5 @@ if $PROGRAM_NAME != __FILE__
   $abe_ques = $abe.authored_questions.first
   $granger_reply = $abe_ques.replies.first
   $awesome_reply = $granger_reply.child_replies.first
+  $granger_follower = QuestionFollower.new("id" => 1, "user_id" => 2, "question_id" => 1)
 end
