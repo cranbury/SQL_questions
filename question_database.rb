@@ -1,6 +1,18 @@
 require 'singleton'
 require 'sqlite3'
 
+class QuestionDatabase < SQLite3::Database
+  include Singleton
+
+  def initialize
+    super("questions.db")
+
+    self.results_as_hash = true
+    self.type_translation = true
+  end
+end
+
+
 class User
   def self.all
     # execute a SELECT; result in an `Array` of `Hash`es, each
@@ -41,7 +53,23 @@ class User
     @fname = options["fname"]
     @lname = options["lname"]
   end
+
+  def authored_questions
+    results = QuestionDatabase.instance.execute(<<-SQL, self.id)
+      SELECT
+        *
+      FROM
+        questions
+      WHERE
+        questions.user_id = ?
+    SQL
+    p results
+    results.map { |result| Professor.new(result) }
+  end
+
 end
+
+
 
 class Question
   def self.all
