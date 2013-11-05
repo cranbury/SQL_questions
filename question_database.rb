@@ -130,17 +130,21 @@ class Question
   end
 
   def author
-    result = QuestionDatabase.instance.execute(<<-SQL, id)
+    result = QuestionDatabase.instance.execute(<<-SQL, self.id)
       SELECT
         user_id
       FROM
         questions
       WHERE
-        questions.user_id = ?
+        questions.id = ?
     SQL
-    p result
-    p result.first["user_id"].class
+    #p result
+    #p result.first["user_id"].class
     User.find_by_id(result.first["user_id"])
+  end
+
+  def replies
+    Reply.find_by_question_id(self.id)
   end
 
 end
@@ -198,6 +202,19 @@ class Reply
     @question_id = options["question_id"]
     @body = options["body"]
     @parent_reply = options["parent_reply"]
+  end
+
+  def self.find_by_question_id(question_id = self.question_id)
+    results = QuestionDatabase.instance.execute(<<-SQL, question_id)
+      SELECT
+        *
+      FROM
+        replies
+      WHERE
+        question_id = ?
+    SQL
+
+    results.map { |result| Reply.new(result) }
   end
 
 end
