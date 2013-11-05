@@ -1,17 +1,6 @@
 require 'singleton'
 require 'sqlite3'
 
-class QuestionDatabase < SQLite3::Database
-  include Singleton
-
-  def initialize
-    super("questions.db")
-
-    self.results_as_hash = true
-    self.type_translation = true
-  end
-end
-
 class User
   def self.all
     # execute a SELECT; result in an `Array` of `Hash`es, each
@@ -20,8 +9,8 @@ class User
     results.map { |result| User.new(result) }
   end
 
-  def self.find_by_id
-    result = QuestionDatabase.instance.execute(<<-SQL, self.id)
+  def self.find_by_id(id = self.id)
+    result = QuestionDatabase.instance.execute(<<-SQL, id)
       SELECT
         *
       FROM
@@ -30,7 +19,19 @@ class User
         users.id = ?
     SQL
 
-    User.new(result)
+    User.new(result.first)
+  end
+
+  def self.find_by_name(fname,lname)
+    results = QuestionDatabase.instance.execute(<<-SQL, fname, lname)
+      SELECT
+        *
+      FROM
+        users
+      Where ? = fname AND ? = lname
+    SQL
+
+    results.map { |result| User.new(result) }
   end
 
   attr_accessor :id, :fname, :lname
@@ -48,8 +49,8 @@ class Question
     results.map { |result| Question.new(result) }
   end
 
-  def self.find_by_id
-    result = QuestionDatabase.instance.execute(<<-SQL, self.id)
+  def self.find_by_id(id = self.id)
+    result = QuestionDatabase.instance.execute(<<-SQL, id)
       SELECT
         *
       FROM
@@ -58,7 +59,7 @@ class Question
         questions.id = ?
     SQL
 
-    Question.new(result)
+    Question.new(result.first)
   end
 
   attr_accessor :id, :title, :body, :user_id
@@ -77,8 +78,8 @@ class QuestionFollower
     results.map { |result| QuestionFollower.new(result) }
   end
 
-  def self.find_by_id
-    result = QuestionDatabase.instance.execute(<<-SQL, self.id)
+  def self.find_by_id(id = self.id)
+    result = QuestionDatabase.instance.execute(<<-SQL, id)
       SELECT
         *
       FROM
@@ -87,7 +88,7 @@ class QuestionFollower
         question_followers.id = ?
     SQL
 
-    QuestionFollower.new(result)
+    QuestionFollower.new(result.first)
   end
 
   attr_accessor :id, :user_id, :question_id
@@ -103,8 +104,8 @@ class Reply
     results.map { |result| Reply.new(result) }
   end
 
-  def self.find_by_id
-    result = QuestionDatabase.instance.execute(<<-SQL, self.id)
+  def self.find_by_id(id = self.id)
+    result = QuestionDatabase.instance.execute(<<-SQL, id)
       SELECT
         *
       FROM
@@ -113,7 +114,7 @@ class Reply
         replies.id = ?
     SQL
 
-    Reply.new(result)
+    Reply.new(result.first)
   end
 
   attr_accessor :id, :user_id, :question_id, :parent_reply, :body
@@ -134,8 +135,8 @@ class QuestionLike
     results.map { |result| QuestionLike.new(result) }
   end
 
-  def self.find_by_id
-    result = QuestionDatabase.instance.execute(<<-SQL, self.id)
+  def self.find_by_id(id = self.id)
+    result = QuestionDatabase.instance.execute(<<-SQL, id)
       SELECT
         *
       FROM
@@ -144,7 +145,7 @@ class QuestionLike
         question_likes.id = ?
     SQL
 
-    QuestionLike.new(result)
+    QuestionLike.new(result.first)
   end
 
   attr_accessor :id, :user_id, :question_id
