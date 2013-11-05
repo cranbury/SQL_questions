@@ -54,7 +54,7 @@ class User
     @lname = options["lname"]
   end
 
-  def authored_questions
+  def authored_questions #return [] if no questions authored
     results = QuestionDatabase.instance.execute(<<-SQL, self.id)
       SELECT
         *
@@ -63,8 +63,21 @@ class User
       WHERE
         questions.user_id = ?
     SQL
-    p results
-    results.map { |result| Professor.new(result) }
+
+    results.map { |result| Question.new(result) }
+  end
+
+  def authored_replies #refactor tp combine with above?
+    results = QuestionDatabase.instance.execute(<<-SQL, self.id)
+      SELECT
+        *
+      FROM
+        replies
+      WHERE
+        replies.user_id = ?
+    SQL
+
+    results.map { |result| Reply.new(result) }
   end
 
 end
