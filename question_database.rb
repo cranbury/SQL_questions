@@ -234,6 +234,10 @@ class Reply
     User.find_by_id(result.first["user_id"])
   end
 
+  def question
+    Question.find_by_id(self.question_id)
+  end
+
 end
 
 class QuestionLike
@@ -266,3 +270,10 @@ class QuestionLike
 
 end
 
+
+if $PROGRAM_NAME != __FILE__
+  $abe = User.new("id" => 1, "fname" => "Abe", "lname" => "S")
+  $granger = User.new("id" => 2, "fname" => "Granger", "lname" => "A")
+  $abe_ques = $abe.authored_questions.first
+  $granger_reply = $abe_ques.replies.first
+end
