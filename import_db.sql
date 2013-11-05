@@ -50,24 +50,25 @@ VALUES
 
 INSERT INTO
   questions (title, body, user_id)
-  SELECT 'What?','is the meaning of life?', id FROM users WHERE fname = 'Abe';
-/*SELECT('Why?','...did they fine us?', id FROM users WHERE fname = 'Granger'));*/
+VALUES
+  ('What?','is the meaning of life?', 1),
+  ('Why?','...did they fine us?', 2);
 
 INSERT INTO
   question_followers (user_id, question_id)
 VALUES
-((SELECT id FROM users WHERE fname = 'Abe'), (SELECT id FROM questions WHERE title = 'What?'));
+(1, 1);
 
 INSERT INTO
   replies (question_id, user_id, body, parent_reply)
 VALUES
-((SELECT id FROM questions WHERE title = 'What?'),(SELECT id FROM users WHERE fname = 'Granger'), 'Chocolate', null),
-((SELECT id FROM questions WHERE title = 'What?'),(SELECT id FROM users WHERE fname = 'Abe'), 'Awesome!', 1);
+(1,(SELECT id FROM users WHERE fname = 'Granger'), 'Chocolate', null),
+(1,(SELECT id FROM users WHERE fname = 'Abe'), 'Awesome!', 1);
 
 INSERT INTO
   question_likes (question_id, user_id)
 VALUES
-((SELECT id FROM questions WHERE title = 'What?'),(SELECT id FROM users WHERE fname = 'Granger'));
+(1,(SELECT id FROM users WHERE fname = 'Granger'));
 
 
 
