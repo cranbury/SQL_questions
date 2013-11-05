@@ -72,16 +72,7 @@ class User
   end
 
   def authored_replies #refactor tp combine with above? #move to reply class?
-    results = QuestionDatabase.instance.execute(<<-SQL, self.id)
-      SELECT
-        *
-      FROM
-        replies
-      WHERE
-        replies.user_id = ?
-    SQL
-
-    results.map { |result| Reply.new(result) }
+    Reply.find_by_user_id(self.id)
   end
 
 end
@@ -212,6 +203,19 @@ class Reply
         replies
       WHERE
         question_id = ?
+    SQL
+
+    results.map { |result| Reply.new(result) }
+  end
+
+  def self.find_by_user_id(user_id = self.user_id)
+    results = QuestionDatabase.instance.execute(<<-SQL, user_id)
+      SELECT
+        *
+      FROM
+        replies
+      WHERE
+        replies.user_id = ?
     SQL
 
     results.map { |result| Reply.new(result) }
