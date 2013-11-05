@@ -362,6 +362,33 @@ class QuestionLike
     results.map { |result| User.new(result) }
   end
 
+  def self.num_likes_for_question_id(question_id)
+    result = QuestionDatabase.instance.execute(<<-SQL, question_id)
+      SELECT
+        COUNT(id)
+      FROM
+        question_likes
+      WHERE
+        question_id = ?
+    SQL
+
+    result.first["COUNT(id)"]
+  end
+
+  def self.liked_questions_for_user_id(user_id)
+    results = QuestionDatabase.instance.execute(<<-SQL, user_id)
+      SELECT
+        question_id AS id, title, body, question_likes.user_id AS user_id
+      FROM
+        question_likes
+        JOIN questions ON question_likes.user_id = questions.id
+      WHERE
+        questions.user_id = ?
+    SQL
+
+    results.map { |result| Question.new(result) }
+  end
+
 
 end
 
