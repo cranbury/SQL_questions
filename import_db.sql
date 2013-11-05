@@ -61,8 +61,8 @@ VALUES
 INSERT INTO
   replies (question_id, user_id, body, parent_reply)
 VALUES
-((SELECT id FROM questions WHERE title = 'What?'),(SELECT id FROM users WHERE fname = 'Granger'), 'Chocolate', null);
-
+((SELECT id FROM questions WHERE title = 'What?'),(SELECT id FROM users WHERE fname = 'Granger'), 'Chocolate', null),
+((SELECT id FROM questions WHERE title = 'What?'),(SELECT id FROM users WHERE fname = 'Abe'), 'Awesome!', 1);
 INSERT INTO
   question_likes (question_id, user_id)
 VALUES

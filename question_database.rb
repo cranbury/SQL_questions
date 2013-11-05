@@ -238,6 +238,23 @@ class Reply
     Question.find_by_id(self.question_id)
   end
 
+  def find_parent_reply
+    self.class.find_by_id(self.parent_reply)
+  end
+
+  def child_replies
+    results = QuestionDatabase.instance.execute(<<-SQL, self.id)
+      SELECT
+        *
+      FROM
+        replies
+      WHERE
+        parent_reply = ?
+    SQL
+
+    results.map { |result| Reply.new(result) }
+  end
+
 end
 
 class QuestionLike
@@ -276,4 +293,5 @@ if $PROGRAM_NAME != __FILE__
   $granger = User.new("id" => 2, "fname" => "Granger", "lname" => "A")
   $abe_ques = $abe.authored_questions.first
   $granger_reply = $abe_ques.replies.first
+  $awesome_reply = $granger_reply.child_replies.first
 end
