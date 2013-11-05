@@ -10,6 +10,19 @@ class QuestionDatabase < SQLite3::Database
     self.results_as_hash = true
     self.type_translation = true
   end
+
+  # def query(*args)
+ #    result = QuestionDatabase.instance.execute(<<-SQL, *args)
+ #      SELECT
+ #        ?
+ #      FROM
+ #        ?
+ #      WHERE
+ #        ?.? = ?
+ #    SQL
+ #
+ #    User.new(result.first)
+ #  end
 end
 
 
@@ -55,19 +68,10 @@ class User
   end
 
   def authored_questions #return [] if no questions authored
-    results = QuestionDatabase.instance.execute(<<-SQL, self.id)
-      SELECT
-        *
-      FROM
-        questions
-      WHERE
-        questions.user_id = ?
-    SQL
-
-    results.map { |result| Question.new(result) }
+   Question.find_by_author_id(self.id)
   end
 
-  def authored_replies #refactor tp combine with above?
+  def authored_replies #refactor tp combine with above? #move to reply class?
     results = QuestionDatabase.instance.execute(<<-SQL, self.id)
       SELECT
         *
@@ -111,6 +115,34 @@ class Question
     @body = options["body"]
     @user_id = options["user_id"]
   end
+
+  def self.find_by_author_id(id)
+    results = QuestionDatabase.instance.execute(<<-SQL, id)
+      SELECT
+        *
+      FROM
+        questions
+      WHERE
+        questions.user_id = ?
+    SQL
+
+    results.map { |result| Question.new(result) }
+  end
+
+  def author
+    result = QuestionDatabase.instance.execute(<<-SQL, id)
+      SELECT
+        user_id
+      FROM
+        questions
+      WHERE
+        questions.user_id = ?
+    SQL
+    p result
+    p result.first["user_id"].class
+    User.find_by_id(result.first["user_id"])
+  end
+
 end
 
 class QuestionFollower
@@ -199,3 +231,4 @@ class QuestionLike
 
 
 end
+
