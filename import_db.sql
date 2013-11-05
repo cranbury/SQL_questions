@@ -8,25 +8,35 @@ CREATE TABLE questions (
   id INTEGER PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
   body VARCHAR(255) NOT NULL,
+  user_id INTEGER NOT NULL,
 
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 
 CREATE TABLE question_followers (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  question_id INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (question_id) REFERENCES questions(id)
   );
 
 CREATE TABLE replies (
   id INTEGER PRIMARY KEY,
-  FOREIGN KEY (question_id) REFERENCES questions(id),
-  FOREIGN KEY (user_id) REFERENCES users(id),
+  user_id INTEGER NOT NULL,
+  question_id INTEGER NOT NULL,
   body VARCHAR(255) NOT NULL,
-  parent_reply INTEGER /* how do we reference id of parent? */
+  parent_reply INTEGER,
+
+  FOREIGN KEY (question_id) REFERENCES questions(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE question_likes (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  question_id INTEGER NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (question_id) REFERENCES questions(id)
   );
@@ -40,9 +50,8 @@ VALUES
 
 INSERT INTO
   questions (title, body, user_id)
-VALUES
-('What?','is the meaning of life?',(SELECT id FROM users WHERE fname = 'Abe'),
-('Why?','...did they fine us?',(SELECT id FROM users WHERE fname = 'Granger'));
+  SELECT 'What?','is the meaning of life?', id FROM users WHERE fname = 'Abe';
+/*SELECT('Why?','...did they fine us?', id FROM users WHERE fname = 'Granger'));*/
 
 INSERT INTO
   question_followers (user_id, question_id)
@@ -50,7 +59,7 @@ VALUES
 ((SELECT id FROM users WHERE fname = 'Abe'), (SELECT id FROM questions WHERE title = 'What?'));
 
 INSERT INTO
-  replies (question_id, user_id, body, parent)
+  replies (question_id, user_id, body, parent_reply)
 VALUES
 ((SELECT id FROM questions WHERE title = 'What?'),(SELECT id FROM users WHERE fname = 'Granger'), 'Chocolate', null);
 
